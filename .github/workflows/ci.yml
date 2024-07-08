@@ -12,12 +12,16 @@ jobs:
   build:
     runs-on: ubuntu-latest
     env:
-      DOCKER_IMAGE_PATH: nstwf/php
+      DOCKER_IMAGE_PATH: nstwf/deployer
 
     services:
       docker:
         image: docker:19.03.12
         options: --privileged
+
+    strategy:
+      matrix:
+        deployer_version: ['6.8.0', '7.3.1', '7.3.3', '7.4.0']
 
     steps:
       - name: Checkout code
@@ -31,7 +35,5 @@ jobs:
 
       - name: Build and push Docker images
         run: |
-          docker build -t ${{ env.DOCKER_IMAGE_PATH }}:fpm-${{ env.PHP_VERSION }} --build-arg PHP_VERSION=${{ env.PHP_VERSION }} .
-          docker push ${{ env.DOCKER_IMAGE_PATH }}:fpm-${{ env.PHP_VERSION }}
-        env:
-          PHP_VERSION: 8.3
+          docker build -t ${{ env.DOCKER_IMAGE_PATH }}:${{ matrix.deployer_version }} --build-arg DEPLOYER_VERSION=${{ matrix.deployer_version }} .
+          docker push ${{ env.DOCKER_IMAGE_PATH }}:${{ matrix.deployer_version }}

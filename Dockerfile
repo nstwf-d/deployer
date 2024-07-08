@@ -1,55 +1,14 @@
-ARG PHP_VERSION
+FROM php:8.3-alpine
 
-FROM php:${PHP_VERSION}-fpm
+ARG DEPLOYER_VERSION
 
-ARG USER_ID=1000
-ARG GROUP_ID=1000
+RUN apk update --no-cache \
+    && apk add --no-cache \
+           bash zip unzip git curl wget openssh-client rsync
 
-RUN apt-get update -y \
-    && apt-get install -y \
-      libfreetype6-dev \
-      libjpeg62-turbo-dev \
-      libpng-dev \
-      libzip-dev \
-      zip \
-      unzip \
-      curl \
-    && apt-get clean \
-    && rm -rf /var/lib/apt/lists/* \
-    && rm -rf /var/cache/apk/*
+RUN curl -LO https://github.com/deployphp/deployer/releases/download/v$DEPLOYER_VERSION/deployer.phar && \
+    mv deployer.phar /usr/local/bin/dep && \
+    chmod +x /usr/local/bin/dep
 
-RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer && chmod +x /usr/local/bin/composer
-
-RUN curl -sSLf \
-        -o /usr/local/bin/install-php-extensions \
-        https://github.com/mlocati/docker-php-extension-installer/releases/latest/download/install-php-extensions && \
-    chmod +x /usr/local/bin/install-php-extensions
-
-RUN install-php-extensions \
-    bcmath \
-    bz2 \
-    calendar \
-    exif \
-    gd \
-    intl \
-    mysqli \
-    pcntl \
-    pdo_mysql \
-    pdo_pgsql \
-    pgsql \
-    opcache \
-    soap \
-    sockets \
-    xsl \
-    zip \
-    xdebug
-
-WORKDIR /var/www
-
-RUN groupmod -g ${GROUP_ID} www-data && \
-    usermod -u ${USER_ID} -g ${GROUP_ID} www-data && \
-    chown -R www-data:www-data /var/www
-
-EXPOSE 9000
-
-CMD ["php-fpm"]
+RUN mkdir -p ~/.ssh \
+    && echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config
