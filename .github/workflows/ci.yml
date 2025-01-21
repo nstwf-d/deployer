@@ -40,7 +40,6 @@ jobs:
       - name: Build and push Docker images (multi-platform)
         run: |
           docker buildx build \
-            --platform linux/arm64 \
             --build-arg DEPLOYER_VERSION=${{ matrix.deployer_version }} \
             -t ${{ env.DOCKER_IMAGE_PATH }}:${{ matrix.deployer_version }} \
             --push .
