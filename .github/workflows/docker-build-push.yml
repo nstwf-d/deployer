@@ -24,7 +24,7 @@ jobs:
     uses: nstwf-docker/docker-ci/.github/workflows/docker-build-push.yaml@main
     secrets: inherit
     with:
-      image_version: ${{ matrix.version }}
+      image_version: ${{ matrix.deployer-version }}
       dockerhub_image: nstwf/${{ github.event.repository.name }}
       ghcr_image: ghcr.io/${{ github.repository }}
       docker_extra_build_args: |
